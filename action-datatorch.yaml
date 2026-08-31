@@ -1,0 +1,42 @@
+name: Claude Task
+author: DataTorch
+description: >-
+  Runs a headless Claude Code agent to carry out a free-form task and
+  returns its final report. This is the bounded-operator step: full
+  agentic capability (tools, iteration, web access) inside one pipeline
+  step with typed outputs, so approval-gated work can be executed by an
+  agent without leaving the run's audit trail. Requires the claude CLI
+  on the runner (found via PATH or ~/.local/bin), authenticated via a
+  prior `claude login` on that machine or ANTHROPIC_API_KEY in the
+  runner's environment.
+inputs:
+  task:
+    type: string
+    description: The task prompt. Everything the agent needs must be in here or reachable by its tools; include the expected shape of the final report.
+    required: true
+  allowed_tools:
+    type: string
+    description: Comma-separated Claude Code tool allow-list. Tools outside the list are denied (headless runs never prompt).
+    default: "Bash,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch"
+  max_turns:
+    type: integer
+    description: Maximum agent turns; 0 means no explicit cap.
+    default: 0
+  model:
+    type: string
+    description: Optional model override (e.g. claude-sonnet-5). Empty uses the CLI default.
+    required: false
+    default: ""
+outputs:
+  report:
+    type: string
+    description: The agent's final message.
+  success:
+    type: boolean
+    description: True when the agent finished without an error result.
+env:
+  ANTHROPIC_API_KEY:
+    description: Optional; only needed when the runner's claude CLI is not already authenticated.
+runs:
+  using: python
+  main: main.py
