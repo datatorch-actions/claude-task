@@ -22,6 +22,9 @@ import subprocess
 import sys
 import tempfile
 
+# Pinned rather than the CLI default, which differs per runner machine.
+DEFAULT_MODEL = "claude-opus-5-5"
+
 
 def find_claude() -> str:
     found = shutil.which("claude")
@@ -51,7 +54,7 @@ def main():
         or "Bash,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch"
     )
     max_turns = int(inputs.get("max_turns") or 0)
-    model = inputs.get("model") or ""
+    model = inputs.get("model") or DEFAULT_MODEL
 
     cmd = [
         find_claude(),
@@ -65,8 +68,7 @@ def main():
     ]
     if max_turns > 0:
         cmd += ["--max-turns", str(max_turns)]
-    if model:
-        cmd += ["--model", model]
+    cmd += ["--model", model]
 
     # Fresh working directory per run so tasks never see each other's files.
     workdir = tempfile.mkdtemp(prefix="claude-task-")

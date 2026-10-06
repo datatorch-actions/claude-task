@@ -24,9 +24,9 @@ inputs:
     default: 0
   model:
     type: string
-    description: Optional model override (e.g. claude-sonnet-5). Empty uses the CLI default.
+    description: Claude model for the agent (e.g. claude-sonnet-5-5). Empty also means claude-opus-5-5.
     required: false
-    default: ""
+    default: claude-opus-5-5
 outputs:
   report:
     type: string
