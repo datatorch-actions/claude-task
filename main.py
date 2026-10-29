@@ -55,6 +55,7 @@ def main():
     )
     max_turns = int(inputs.get("max_turns") or 0)
     model = inputs.get("model") or DEFAULT_MODEL
+    fail_on_prefix = str(inputs.get("fail_on_prefix") or "")
 
     cmd = [
         find_claude(),
@@ -119,13 +120,24 @@ def main():
         result_event.get("subtype") not in (None, "success")
     )
 
+    # A report that opens with the declared prefix is the agent saying it
+    # did not do the job (for example ABORTED); treat it as a failure so
+    # downstream steps skip instead of acting on a report of nothing.
+    refused = bool(fail_on_prefix) and report.lstrip().startswith(fail_on_prefix)
+
     print(f"::report::{json.dumps(report)}")
-    print(f"::success::{json.dumps(not is_error)}")
+    print(f"::success::{json.dumps(not (is_error or refused))}")
 
     if is_error:
         # Surface the failure to the orchestrator so downstream steps skip
         # and the run shows FAILED rather than silently succeeding.
         print(f"Agent finished with an error result: {report[:500]}", file=sys.stderr)
+        sys.exit(1)
+    if refused:
+        print(
+            f"Report starts with {fail_on_prefix!r}, so the step fails: {report[:500]}",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
 

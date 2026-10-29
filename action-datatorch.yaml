@@ -27,6 +27,15 @@ inputs:
     description: Claude model for the agent (e.g. claude-sonnet-5-5). Empty also means claude-opus-5-5.
     required: false
     default: claude-opus-5-5
+  fail_on_prefix:
+    type: string
+    description: >-
+      When set, a report that starts with this text (after leading whitespace,
+      case-sensitive) fails the step, so downstream steps skip and the run shows
+      FAILED. Use it for a task whose brief says to begin its report with a
+      word such as ABORTED when it did nothing.
+    required: false
+    default: ""
 outputs:
   report:
     type: string
